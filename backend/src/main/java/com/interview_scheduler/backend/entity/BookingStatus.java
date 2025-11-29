@@ -1,9 +1,9 @@
 package com.interview_scheduler.backend.entity;
 
-public enum SlotStatus {
-    AVAILABLE,
-    BOOKED,
+public enum BookingStatus {
+    PENDING,
     CONFIRMED,
     CANCELLED,
-    EXPIRED
+    NO_SHOW,
+    COMPLETED
 }
