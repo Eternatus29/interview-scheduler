@@ -42,11 +42,31 @@ public interface InterviewSlotRepository extends JpaRepository<InterviewSlot, Lo
                         Pageable pageable);
 
         @Query("SELECT s FROM InterviewSlot s WHERE s.status = :status " +
+                        "AND s.interviewer.id = :interviewerId " +
+                        "AND s.startTime >= :startDate ORDER BY s.startTime ASC")
+        Page<InterviewSlot> findAvailableSlotsPageableByInterviewer(
+                        @Param("status") SlotStatus status,
+                        @Param("startDate") LocalDateTime startDate,
+                        @Param("interviewerId") Long interviewerId,
+                        Pageable pageable);
+
+        @Query("SELECT s FROM InterviewSlot s WHERE s.status = :status " +
                         "AND s.startTime >= :startDate AND s.id > :cursor " +
                         "ORDER BY s.id ASC")
         List<InterviewSlot> findAvailableSlotsByCursor(
                         @Param("status") SlotStatus status,
                         @Param("startDate") LocalDateTime startDate,
+                        @Param("cursor") Long cursor,
+                        Pageable pageable);
+
+        @Query("SELECT s FROM InterviewSlot s WHERE s.status = :status " +
+                        "AND s.interviewer.id = :interviewerId " +
+                        "AND s.startTime >= :startDate AND s.id > :cursor " +
+                        "ORDER BY s.id ASC")
+        List<InterviewSlot> findAvailableSlotsByCursorByInterviewer(
+                        @Param("status") SlotStatus status,
+                        @Param("startDate") LocalDateTime startDate,
+                        @Param("interviewerId") Long interviewerId,
                         @Param("cursor") Long cursor,
                         Pageable pageable);
 

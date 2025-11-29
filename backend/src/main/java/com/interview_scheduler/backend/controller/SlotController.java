@@ -47,16 +47,19 @@ public class SlotController {
     @GetMapping("/available")
     public ResponseEntity<ApiResponse<PaginatedResponse<InterviewSlotResponse>>> getAvailableSlots(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        PaginatedResponse<InterviewSlotResponse> response = slotService.getAvailableSlots(page, size);
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) Long interviewerId) {
+        PaginatedResponse<InterviewSlotResponse> response = slotService.getAvailableSlots(page, size, interviewerId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @GetMapping("/available/cursor")
     public ResponseEntity<ApiResponse<PaginatedResponse<InterviewSlotResponse>>> getAvailableSlotsByCursor(
             @RequestParam(defaultValue = "0") Long cursor,
-            @RequestParam(defaultValue = "10") int limit) {
-        PaginatedResponse<InterviewSlotResponse> response = slotService.getAvailableSlotsByCursor(cursor, limit);
+            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(required = false) Long interviewerId) {
+        PaginatedResponse<InterviewSlotResponse> response = slotService.getAvailableSlotsByCursor(cursor, limit,
+                interviewerId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

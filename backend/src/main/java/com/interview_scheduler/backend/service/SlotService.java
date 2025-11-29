@@ -12,7 +12,11 @@ public interface SlotService {
 
     PaginatedResponse<InterviewSlotResponse> getAvailableSlots(int page, int size);
 
+    PaginatedResponse<InterviewSlotResponse> getAvailableSlots(int page, int size, Long interviewerId);
+
     PaginatedResponse<InterviewSlotResponse> getAvailableSlotsByCursor(Long cursor, int limit);
+
+    PaginatedResponse<InterviewSlotResponse> getAvailableSlotsByCursor(Long cursor, int limit, Long interviewerId);
 
     List<InterviewSlotResponse> getAvailableSlotsForInterviewer(Long interviewerId);
 

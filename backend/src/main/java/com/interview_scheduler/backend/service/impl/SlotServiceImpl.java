@@ -142,6 +142,31 @@ public class SlotServiceImpl implements SlotService {
 
     @Override
     @Transactional(readOnly = true)
+    public PaginatedResponse<InterviewSlotResponse> getAvailableSlots(int page, int size, Long interviewerId) {
+        if (interviewerId == null) {
+            return getAvailableSlots(page, size);
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<InterviewSlot> slotsPage = slotRepository.findAvailableSlotsPageableByInterviewer(
+                SlotStatus.AVAILABLE, now, interviewerId, pageable);
+
+        List<InterviewSlotResponse> slots = slotsPage.getContent().stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+
+        return PaginatedResponse.ofOffset(
+                slots,
+                page,
+                size,
+                slotsPage.getTotalElements(),
+                slotsPage.getTotalPages());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public PaginatedResponse<InterviewSlotResponse> getAvailableSlotsByCursor(Long cursor, int limit) {
         LocalDateTime now = LocalDateTime.now();
 
@@ -150,6 +175,36 @@ public class SlotServiceImpl implements SlotService {
         Pageable pageable = PageRequest.of(0, limit + 1);
         List<InterviewSlot> slots = slotRepository.findAvailableSlotsByCursor(
                 SlotStatus.AVAILABLE, now, effectiveCursor, pageable);
+
+        boolean hasNext = slots.size() > limit;
+        if (hasNext) {
+            slots = slots.subList(0, limit);
+        }
+
+        List<InterviewSlotResponse> responses = slots.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+
+        Long nextCursor = !slots.isEmpty() ? slots.get(slots.size() - 1).getId() : null;
+
+        return PaginatedResponse.ofCursor(responses, nextCursor, effectiveCursor, hasNext);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PaginatedResponse<InterviewSlotResponse> getAvailableSlotsByCursor(Long cursor, int limit,
+            Long interviewerId) {
+        if (interviewerId == null) {
+            return getAvailableSlotsByCursor(cursor, limit);
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        Long effectiveCursor = cursor != null ? cursor : 0L;
+
+        Pageable pageable = PageRequest.of(0, limit + 1);
+        List<InterviewSlot> slots = slotRepository.findAvailableSlotsByCursorByInterviewer(
+                SlotStatus.AVAILABLE, now, interviewerId, effectiveCursor, pageable);
 
         boolean hasNext = slots.size() > limit;
         if (hasNext) {
