@@ -1,7 +1,11 @@
 package com.interview_scheduler.backend.controller;
 
 import java.util.List;
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.springframework.web.bind.annotation.RequestBody;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,8 +39,13 @@ public class SlotController {
     }
 
     @PostMapping("/generate/{interviewerId}")
-    public String generate(@PathVariable Long interviewerId) {
-        slotGenerationService.generateSlotsForNextTwoWeeks(interviewerId);
+    public String generate(@PathVariable Long interviewerId,
+            @RequestBody(required = false) List<String> slotTimesRaw) {
+        List<LocalDateTime> slotTimes = List.of();
+        if (slotTimesRaw != null && !slotTimesRaw.isEmpty()) {
+            slotTimes = slotTimesRaw.stream().map(s -> LocalDateTime.parse(s)).collect(Collectors.toList());
+        }
+        slotGenerationService.generateSlotsForNextTwoWeeks(interviewerId, slotTimes == null ? List.of() : slotTimes);
         return "Slots generated";
     }
 
@@ -45,6 +54,11 @@ public class SlotController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         return generatedSlotRepo.findAll(PageRequest.of(page, size));
+    }
+
+    @GetMapping("/available")
+    public List<GeneratedSlot> getAvailableSlots() {
+        return generatedSlotRepo.findByStatus(com.interview_scheduler.backend.entity.SlotStatus.AVAILABLE);
     }
 
     @PostMapping("/book")
